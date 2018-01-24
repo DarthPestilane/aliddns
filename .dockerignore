@@ -1,2 +1,8 @@
+.dockerignore
 aliddns
 .env.example
+
+# about git
+.git
+.gitignore
+README.MD
