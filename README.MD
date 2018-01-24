@@ -29,10 +29,20 @@ docker build -t xxx/ddns:t123 .
 然后run容器:
 
 ```sh
-docker run --name aliddns xxx/ddns:t123
+docker run --name ali-ddns xxx/ddns:t123
 ```
 
-之后就可以定时去start容器来刷新解析
+或者直接用仓库里的 `docker-compose.yml` 文件来创建容器:
+
+```sh
+docker-compose up
+```
+
+之后就可以定时去start容器来刷新解析:
+
+```sh
+docker start -i ali-ddns # 如果加了 -i 参数，则会输出日志
+```
 
 ---
 
