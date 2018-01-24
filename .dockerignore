@@ -1,8 +1,5 @@
-.dockerignore
-aliddns
-.env.example
-
-# about git
-.git
-.gitignore
-README.MD
+*
+!main.go
+!vendor
+!.env
+!Gopkg.*
