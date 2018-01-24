@@ -2,7 +2,7 @@
 
 调用阿里云提供的API，刷新域名解析，将其解析到当前IP地址。
 
-本来想用php写的，但是php版本的sdk写的太烂了（大家可以感受一下:https://github.com/aliyun/aliyun-openapi-php-sdk），没有composer，连注释也没有，不想用，故换成golang。
+本来想用php写的，但是php版本的sdk写的太烂了（大家可以感受一下：[github/aliyun-stupid-php-sdk](https://github.com/aliyun/aliyun-openapi-php-sdk)），没有composer，连注释也没有，不想用，故换成golang。
 
 ## 使用之前
 
