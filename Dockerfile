@@ -4,4 +4,4 @@ COPY . $GOPATH/src/ddns
 
 WORKDIR $GOPATH/src/ddns
 
-CMD [ "go", "run", "main.go" ]
+ENTRYPOINT [ "go", "run", "main.go" ]
