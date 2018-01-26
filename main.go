@@ -40,22 +40,35 @@ func init() {
 func main() {
 	recordResp := findRecords()
 	records := recordResp.DomainRecords.Record
-	if len(records) == 0 {
-		// add record
-		log.Println("add domain record")
-		addRecord()
-	} else {
-		// update record
-		recordId := records[0].RecordId
-		domainIP := records[0].Value
-		log.Printf("domain ip is \t %s", domainIP)
-		if domainIP != currentIP {
-			log.Println("ip changed, update domain record")
-			updateRecord(recordId)
-		} else {
-			log.Println("ip not changed, cancel update")
+
+	shouldAdd := true
+	var recordId, recordValue string
+	for _, r := range records {
+		if r.RR == rr {
+			// 如果找到RR和env里的rr相同的记录，则更新这条记录的解析。反之则添加一条新解析
+			shouldAdd = false
+			recordId = r.RecordId
+			recordValue = r.Value
+			break
 		}
 	}
+
+	if shouldAdd {
+		log.Printf("add domain record")
+		addRecord()
+		return
+	}
+
+	// update record
+	log.Printf("domain ip is \t %s", recordValue)
+	if recordValue != currentIP {
+		log.Println("ip changed, update domain record")
+		updateRecord(recordId)
+		return
+	}
+
+	// no need updating
+	log.Println("ip not changed, no need updating")
 }
 
 func env(key string, missing ...string) string {
@@ -120,7 +133,7 @@ func addRecord() *alidns.AddDomainRecordResponse {
 	if err != nil {
 		panic(err)
 	}
-	log.Printf(`set ip to %s`, currentIP)
+	log.Printf(`set ip of '%s.%s' to %s`, rr, domainName, currentIP)
 	return resp
 }
 
@@ -134,6 +147,6 @@ func updateRecord(recordId string) *alidns.UpdateDomainRecordResponse {
 	if err != nil {
 		panic(err)
 	}
-	log.Printf(`set ip to %s`, currentIP)
+	log.Printf(`set ip of '%s.%s' to %s`, rr, domainName, currentIP)
 	return resp
 }

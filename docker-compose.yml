@@ -9,4 +9,7 @@ services:
       - './vendor:/go/src/ddns/vendor'
       - './main.go:/go/src/ddns/main.go'
       - './.env:/go/src/ddns/.env'
-    command: go run main.go
+    entrypoint:
+      - go
+      - run
+      - main.go
