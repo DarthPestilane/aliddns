@@ -1,13 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/joho/godotenv"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var (
@@ -94,7 +94,7 @@ func newClient(ch ...chan *alidns.Client) *alidns.Client {
 }
 
 func getCurrentIP(ch ...chan string) string {
-	response, err := http.Get("http://ipinfo.io/json")
+	response, err := http.Get("http://members.3322.org/dyndns/getip")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -102,11 +102,7 @@ func getCurrentIP(ch ...chan string) string {
 	if err != nil {
 		panic(err)
 	}
-	var body map[string]interface{}
-	if err := json.Unmarshal(b, &body); err != nil {
-		panic(err)
-	}
-	ip := body["ip"].(string)
+	ip := strings.TrimSpace(string(b))
 	if len(ch) != 0 {
 		ch[0] <- ip
 	}
