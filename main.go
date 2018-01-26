@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 var (
@@ -23,52 +24,42 @@ func init() {
 	}
 	domainName = env("DOMAIN_NAME")
 	rr = env("RR", "@")
-
-	chClient := make(chan *alidns.Client)
-	chCurrentIP := make(chan string)
-	go newClient(chClient)
-	go getCurrentIP(chCurrentIP)
-	client = <-chClient
-	currentIP = <-chCurrentIP
-
-	// client = newClient()
-	// currentIP = getCurrentIP()
-
-	log.Printf("current ip is \t %s", currentIP)
+	client = newClient()
 }
 
 func main() {
-	recordResp := findRecords()
-	records := recordResp.DomainRecords.Record
-
-	shouldAdd := true
-	var recordId, recordValue string
-	for _, r := range records {
-		if r.RR == rr {
-			// 如果找到RR和env里的rr相同的记录，则更新这条记录的解析。反之则添加一条新解析
-			shouldAdd = false
-			recordId = r.RecordId
-			recordValue = r.Value
-			break
+	for {
+		currentIP = getCurrentIP()
+		log.Printf("current ip is \t %s", currentIP)
+		recordResp := findRecords()
+		records := recordResp.DomainRecords.Record
+		shouldAdd := true
+		var recordId, recordValue string
+		for _, r := range records {
+			if r.RR == rr {
+				// 如果找到RR和env里的rr相同的记录，则更新这条记录的解析。反之则添加一条新解析
+				shouldAdd = false
+				recordId = r.RecordId
+				recordValue = r.Value
+				break
+			}
 		}
+		if shouldAdd {
+			log.Printf("add domain record")
+			addRecord()
+		} else {
+			// update record
+			log.Printf("domain ip is \t %s", recordValue)
+			if recordValue != currentIP {
+				log.Println("ip changed, update domain record")
+				updateRecord(recordId)
+			} else {
+				// no need updating
+				log.Println("ip not changed, no need updating")
+			}
+		}
+		time.Sleep(5 * 60 * time.Second)
 	}
-
-	if shouldAdd {
-		log.Printf("add domain record")
-		addRecord()
-		return
-	}
-
-	// update record
-	log.Printf("domain ip is \t %s", recordValue)
-	if recordValue != currentIP {
-		log.Println("ip changed, update domain record")
-		updateRecord(recordId)
-		return
-	}
-
-	// no need updating
-	log.Println("ip not changed, no need updating")
 }
 
 func env(key string, missing ...string) string {
