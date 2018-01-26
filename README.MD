@@ -4,7 +4,17 @@
 
 本来想用php写的，但是php版本的sdk写的太烂了（大家可以感受一下：[github/aliyun-stupid-php-sdk](https://github.com/aliyun/aliyun-openapi-php-sdk)），没有composer，连注释也没有，不想用，故换成golang。
 
-## 使用之前
+## 使用前提
+
+IP必须是公网IP，如果被NAT成了内网IP，需要打电话去申请成公网IP。
+
+内网IP是没有办法用这个的。
+
+## 原理
+
+![原理流程](https://user-images.githubusercontent.com/15375753/35424004-e7fd1948-028b-11e8-946d-03ec504ed3ff.png)
+
+## 配置说明
 
 解释下 `.env.example` 文件里的几个变量：
 
@@ -18,7 +28,7 @@
 
 ## 使用方式
 
-首先复制 .env.example 文件到 .env，然后修改里面的变量。
+首先复制 .env.example 文件到 .env，然后按照配置说明修改里面的变量。
 
 如果有 `docker` ，先build镜像（如果还没有build过的话）:
 
