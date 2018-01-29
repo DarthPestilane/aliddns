@@ -1,21 +1,25 @@
 package main
 
 import (
+	"errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/joho/godotenv"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
 
 var (
-	client     *alidns.Client
-	domainName string
-	rr         string
-	currentIP  string
+	client          *alidns.Client
+	domainName      string
+	rr              string
+	currentIP       string
+	auto            bool
+	intervalMinutes int
 )
 
 func init() {
@@ -24,12 +28,31 @@ func init() {
 	}
 	domainName = env("DOMAIN_NAME")
 	rr = env("RR", "@")
+	autoStr := strings.ToLower(env("AUTO_REFRESH", "false"))
+	if autoStr == "true" {
+		auto = true
+	}
+	min, err := strconv.Atoi(env("INTERVAL_MINUTES", "0"))
+	if err != nil {
+		panic(err)
+	}
+	intervalMinutes = min
+	if auto && intervalMinutes <= 0 {
+		panic(errors.New("interval minutes should be at least greater than 0"))
+	}
 	client = newClient()
 }
 
 func main() {
 	for {
-		currentIP = getCurrentIP()
+		ip, err := getCurrentIP()
+		if err == http.ErrHandlerTimeout {
+			log.Println("request current ip timeout, try again now")
+			continue
+		} else if err != nil {
+			panic(err)
+		}
+		currentIP = ip
 		log.Printf("current ip is \t %s", currentIP)
 		recordResp := findRecords()
 		records := recordResp.DomainRecords.Record
@@ -58,7 +81,10 @@ func main() {
 				log.Println("ip not changed, no need updating")
 			}
 		}
-		time.Sleep(5 * 60 * time.Second)
+		if !auto {
+			return
+		}
+		time.Sleep(time.Duration(intervalMinutes) * time.Minute)
 	}
 }
 
@@ -84,20 +110,17 @@ func newClient(ch ...chan *alidns.Client) *alidns.Client {
 	return client
 }
 
-func getCurrentIP(ch ...chan string) string {
+func getCurrentIP() (string, error) {
 	response, err := http.Get("http://members.3322.org/dyndns/getip")
 	if err != nil {
-		panic(err.Error())
+		return "", err
 	}
 	b, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	ip := strings.TrimSpace(string(b))
-	if len(ch) != 0 {
-		ch[0] <- ip
-	}
-	return ip
+	return ip, nil
 }
 
 func findRecords() *alidns.DescribeDomainRecordsResponse {
