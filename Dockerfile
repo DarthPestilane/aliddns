@@ -6,4 +6,4 @@ WORKDIR $GOPATH/src/aliddns
 
 RUN cd $GOPATH/src/aliddns && go build && go install
 
-ENTRYPOINT [ "aliddns"]
+ENTRYPOINT ["aliddns"]
