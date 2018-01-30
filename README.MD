@@ -30,7 +30,7 @@ IP必须是公网IP，如果被NAT成了内网IP，需要打电话去申请成�
 
 - `--interval-min`: 表示定数刷新的时间间隔（分钟），选填，但如果跟了这个参数，值必须是大于0的整数。
 
-示例: `go build && ./aliddns --domain-name=darthpestilane.com --rr=www --interval-min=10`
+示例: `go build && ./aliddns --domain-name=example.com --rr=@ --interval-min=10`
 
 ## 使用方式
 
@@ -41,13 +41,13 @@ IP必须是公网IP，如果被NAT成了内网IP，需要打电话去申请成�
 如果有 `docker` ，先build镜像（如果还没有build过的话）:
 
 ```sh
-docker build -t xxx/ddns:t123 .
+docker build -t my/ali-ddns:t123 .
 ```
 
 然后run容器:
 
 ```sh
-docker run --name ali-ddns xxx/ddns:t123 --domain-name=darthpestilane.com [--rr=www] [--interval-min=10]
+docker run --name ali-ddns my/ali-ddns:t123 --domain-name=example.com [--rr=@] [--interval-min=10]
 ```
 
 之后就可以start容器来刷新解析:
