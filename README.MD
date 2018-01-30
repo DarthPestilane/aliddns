@@ -18,21 +18,25 @@ IP必须是公网IP，如果被NAT成了内网IP，需要打电话去申请成�
 
 解释下 `.env.example` 文件里的几个变量：
 
-- `ACCESS_KEY` 和 `ACCESS_KEY_SECRET` 就是访问阿里云API的密钥，必填。在这里可有看到 https://ak-console.aliyun.com
+- `ACCESS_KEY` 和 `ACCESS_KEY_SECRET` 就是访问阿里云API的密钥，**必填**。在这里可有看到 https://ak-console.aliyun.com
 
 - `REGION` 是区域ID，可以为空，默认是 `cn-hangzhou`
 
-- `DOMAIN_NAME` 表示要解析的域名。必填，如 `darthpestilane.com`
+解释下命令的参数：
 
-- `RR` 表示主机记录。选填，默认为 `@`
+- `--domain-name`: 要解析的域名，**必填**。
 
-- `AUTO_REFRESH` 是否开启自动刷新模式。选填，填 `true` 或 `false`
+- `--rr`: 解析的RR值，选填，默认是`@`。
 
-- `INTERVAL_MINUTES` 如果开启了自动刷新，则为必填，表示刷新的间隔时间（分钟），务必是大于0的整数
+- `--interval-min`: 表示定数刷新的时间间隔（分钟），选填，但如果跟了这个参数，值必须是大于0的整数。
+
+示例: `go build && ./aliddns --domain-name=darthpestilane.com --rr=www --interval-min=10`
 
 ## 使用方式
 
-首先复制 .env.example 文件到 .env，然后按照配置说明修改里面的变量。
+首先用 `dep` 去安装依赖: `dep ensure -v`
+
+然后复制 .env.example 文件到 .env，然后按照配置说明修改里面的变量。
 
 如果有 `docker` ，先build镜像（如果还没有build过的话）:
 
@@ -43,16 +47,10 @@ docker build -t xxx/ddns:t123 .
 然后run容器:
 
 ```sh
-docker run --name ali-ddns xxx/ddns:t123
+docker run --name ali-ddns xxx/ddns:t123 --domain-name=darthpestilane.com [--rr=www] [--interval-min=10]
 ```
 
-或者直接用仓库里的 `docker-compose.yml` 文件来创建容器:
-
-```sh
-docker-compose up
-```
-
-之后就可以定时去start容器来刷新解析:
+之后就可以start容器来刷新解析:
 
 ```sh
 docker start -i ali-ddns # 如果加了 -i 参数，则会输出日志

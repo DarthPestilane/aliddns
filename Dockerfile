@@ -1,7 +1,9 @@
 FROM golang:1.9.2-alpine
 
-COPY . $GOPATH/src/ddns
+COPY . $GOPATH/src/aliddns
 
-WORKDIR $GOPATH/src/ddns
+WORKDIR $GOPATH/src/aliddns
 
-ENTRYPOINT [ "go", "run", "main.go" ]
+RUN cd $GOPATH/src/aliddns && go build && go install
+
+ENTRYPOINT [ "aliddns"]

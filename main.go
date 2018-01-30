@@ -16,9 +16,8 @@ import (
 var (
 	client          *alidns.Client
 	domainName      string
-	rr              string
+	rr              string = "@" // default is `@`
 	currentIP       string
-	auto            bool
 	intervalMinutes int
 )
 
@@ -26,19 +25,38 @@ func init() {
 	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
-	domainName = env("DOMAIN_NAME")
-	rr = env("RR", "@")
-	autoStr := strings.ToLower(env("AUTO_REFRESH", "false"))
-	if autoStr == "true" {
-		auto = true
+	for _, s := range os.Args {
+		arg := strings.Split(s, "=")
+		key := strings.Trim(strings.ToLower(arg[0]), "-")
+		var val string
+		if len(arg) > 1 {
+			val = strings.TrimSpace(arg[1])
+		}
+		switch key {
+		case "domain-name":
+			if val != "" {
+				domainName = val
+			}
+		case "rr":
+			if val != "" {
+				rr = val
+			}
+		case "interval-min":
+			if val != "" {
+				min, err := strconv.Atoi(val)
+				if err != nil {
+					panic(err)
+				}
+				if min < 1 {
+					panic(errors.New("interval minutes must be greater than 0"))
+				}
+				intervalMinutes = min
+			}
+		}
 	}
-	min, err := strconv.Atoi(env("INTERVAL_MINUTES", "0"))
-	if err != nil {
-		panic(err)
-	}
-	intervalMinutes = min
-	if auto && intervalMinutes <= 0 {
-		panic(errors.New("interval minutes should be at least greater than 0"))
+	// check vars
+	if domainName == "" {
+		panic(errors.New("domain-name must be specified"))
 	}
 	client = newClient()
 }
@@ -81,7 +99,7 @@ func main() {
 				log.Println("ip not changed, no need updating")
 			}
 		}
-		if !auto {
+		if intervalMinutes == 0 {
 			return
 		}
 		time.Sleep(time.Duration(intervalMinutes) * time.Minute)
