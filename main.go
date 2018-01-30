@@ -111,7 +111,8 @@ func newClient(ch ...chan *alidns.Client) *alidns.Client {
 }
 
 func getCurrentIP() (string, error) {
-	response, err := http.Get("http://members.3322.org/dyndns/getip")
+	// response, err := http.Get("http://members.3322.org/dyndns/getip")
+	response, err := http.Get("http://35.194.248.24:81") // ip getter
 	if err != nil {
 		return "", err
 	}
