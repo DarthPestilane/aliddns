@@ -46,13 +46,10 @@ func env(key string, missing ...string) string {
 	return v
 }
 
-func newClient(ch ...chan *alidns.Client) *alidns.Client {
+func newClient() *alidns.Client {
 	client, err := alidns.NewClientWithAccessKey(env("REGION", "cn-hangzhou"), env("ACCESS_KEY"), env("ACCESS_KEY_SECRET"))
 	if err != nil {
 		panic(err)
-	}
-	if len(ch) != 0 {
-		ch[0] <- client
 	}
 	return client
 }
@@ -107,4 +104,35 @@ func updateRecord(recordId string) *alidns.UpdateDomainRecordResponse {
 	}
 	log.Printf(`set ip of '%s.%s' to %s`, rr, domainName, currentIP)
 	return resp
+}
+
+func bind() {
+	log.Printf("current ip is %s", currentIP)
+	recordResp := findRecords()
+	records := recordResp.DomainRecords.Record
+	shouldAdd := true
+	var recordId, recordValue string
+	for _, r := range records {
+		if r.RR == rr {
+			// 如果找到RR和输入里的rr相同的记录，则更新这条记录的解析。反之则添加一条新解析
+			shouldAdd = false
+			recordId = r.RecordId
+			recordValue = r.Value
+			break
+		}
+	}
+	if shouldAdd {
+		log.Printf("add domain record")
+		addRecord()
+	} else {
+		// update record
+		log.Printf("domain ip is %s", recordValue)
+		if recordValue != currentIP {
+			log.Println("ip changed, update domain record")
+			updateRecord(recordId)
+		} else {
+			// no need updating
+			log.Println("ip not changed, no need updating")
+		}
+	}
 }

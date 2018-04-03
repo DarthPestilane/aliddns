@@ -14,7 +14,7 @@ func httpCmd() cli.Command {
 		Name: "http",
 		Flags: []cli.Flag{
 			cli.IntFlag{
-				Name: "port",
+				Name:  "port",
 				Value: 8888,
 				Usage: "指定`监听端口`",
 			},
@@ -52,7 +52,7 @@ func httpCmd() cli.Command {
 					rr = rrs[0]
 				}
 
-				// handle
+				// bind
 				addr := strings.TrimSpace(r.RemoteAddr)
 				idx := strings.Index(addr, ":")
 				if idx != -1 {
@@ -60,34 +60,7 @@ func httpCmd() cli.Command {
 				} else {
 					currentIP = addr
 				}
-				log.Printf("current ip is \t %s", currentIP)
-				recordResp := findRecords()
-				records := recordResp.DomainRecords.Record
-				shouldAdd := true
-				var recordId, recordValue string
-				for _, r := range records {
-					if r.RR == rr {
-						// 如果找到RR和输入的rr相同的记录，则更新这条记录的解析。反之则添加一条新解析
-						shouldAdd = false
-						recordId = r.RecordId
-						recordValue = r.Value
-						break
-					}
-				}
-				if shouldAdd {
-					log.Printf("add domain record")
-					addRecord()
-				} else {
-					// update record
-					log.Printf("domain ip is \t %s", recordValue)
-					if recordValue != currentIP {
-						log.Println("ip changed, update domain record")
-						updateRecord(recordId)
-					} else {
-						// no need updating
-						log.Println("ip not changed, no need updating")
-					}
-				}
+				bind()
 
 				w.WriteHeader(200)
 				b, err := json.Marshal(map[string]interface{}{
