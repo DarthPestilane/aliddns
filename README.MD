@@ -44,6 +44,8 @@ Options 说明：
 
 ### Http 方式
 
+**如果有vps，建议使用这种方式，直接把服务跑在vps上，然后用curl等工具请求下即可。**
+
 build 之后，执行 `./aliddns http [--port=8888]`
 
 然后发起请求 `GET host/?domain_name=example.com&rr=@`
