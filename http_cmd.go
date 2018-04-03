@@ -6,6 +6,7 @@ import (
 	"github.com/urfave/cli"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func httpCmd() cli.Command {
@@ -17,13 +18,11 @@ func httpCmd() cli.Command {
 				header := w.Header()
 				header.Set("Content-Type", "application/json")
 
-				log.Println(r.URL.Query())
+				// query strings
 				query := r.URL.Query()
 
 				// domain name
-				var has bool
-				_, has = query["domain_name"]
-				if !has {
+				if domains, has := query["domain_name"]; !has || domains[0] == "" {
 					w.WriteHeader(422)
 					b, err := json.Marshal(map[string]interface{}{
 						"success": false,
@@ -34,29 +33,25 @@ func httpCmd() cli.Command {
 					}
 					w.Write(b)
 					return
-				}
-				domainName = query["domain_name"][0]
-				if domainName == "" {
-					w.WriteHeader(422)
-					b, err := json.Marshal(map[string]interface{}{
-						"success": false,
-						"errors":  "domain_name is required",
-					})
-					if err != nil {
-						panic(err)
-					}
-					w.Write(b)
-					return
+				} else {
+					domainName = domains[0]
 				}
 
 				// rr
-				rr = query["rr"][0]
-				if rr == "" {
+				if rrs, has := query["rr"]; !has || rrs[0] == "" {
 					rr = "@"
+				} else {
+					rr = rrs[0]
 				}
 
 				// handle
-				currentIP := r.RemoteAddr
+				addr := strings.TrimSpace(r.RemoteAddr)
+				idx := strings.Index(addr, ":")
+				if idx != -1 {
+					currentIP = addr[:idx]
+				} else {
+					currentIP = addr
+				}
 				log.Printf("current ip is \t %s", currentIP)
 				recordResp := findRecords()
 				records := recordResp.DomainRecords.Record
@@ -64,7 +59,7 @@ func httpCmd() cli.Command {
 				var recordId, recordValue string
 				for _, r := range records {
 					if r.RR == rr {
-						// 如果找到RR和env里的rr相同的记录，则更新这条记录的解析。反之则添加一条新解析
+						// 如果找到RR和输入的rr相同的记录，则更新这条记录的解析。反之则添加一条新解析
 						shouldAdd = false
 						recordId = r.RecordId
 						recordValue = r.Value
