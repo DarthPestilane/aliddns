@@ -3,7 +3,18 @@
 
 [[projects]]
   name = "github.com/aliyun/alibaba-cloud-sdk-go"
-  packages = ["sdk","sdk/auth","sdk/auth/credentials","sdk/auth/signers","sdk/endpoints","sdk/errors","sdk/requests","sdk/responses","sdk/utils","services/alidns"]
+  packages = [
+    "sdk",
+    "sdk/auth",
+    "sdk/auth/credentials",
+    "sdk/auth/signers",
+    "sdk/endpoints",
+    "sdk/errors",
+    "sdk/requests",
+    "sdk/responses",
+    "sdk/utils",
+    "services/alidns"
+  ]
   revision = "5657c41806e2449a4f64478131829e4f31686457"
   version = "0.8.3"
 
@@ -31,9 +42,15 @@
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
   version = "v1.2.0"
 
+[[projects]]
+  name = "github.com/urfave/cli"
+  packages = ["."]
+  revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
+  version = "v1.20.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9936ad322897674b0217f5e521c8245ed1d9b1eb3baed7883c8eb39135fa5d78"
+  inputs-digest = "f70219b4b96ab13b3ebbc1bfbf00f30f64b9a643a1f07c4fe8ff01496e7cfa3a"
   solver-name = "gps-cdcl"
   solver-version = 1
