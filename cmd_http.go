@@ -12,8 +12,16 @@ import (
 func httpCmd() cli.Command {
 	cmd := cli.Command{
 		Name: "http",
+		Flags: []cli.Flag{
+			cli.IntFlag{
+				Name: "port",
+				Value: 8888,
+				Usage: "指定`监听端口`",
+			},
+		},
 		Action: func(ctx *cli.Context) {
-			log.Println("listening at port 8888")
+			port := ctx.Int("port")
+			log.Printf("listening at port %d\n", port)
 			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 				header := w.Header()
 				header.Set("Content-Type", "application/json")
@@ -92,7 +100,7 @@ func httpCmd() cli.Command {
 				w.Write(b)
 				return
 			})
-			http.ListenAndServe(":8888", nil)
+			http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 		},
 	}
 	return cmd
