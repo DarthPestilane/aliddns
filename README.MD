@@ -18,7 +18,7 @@ IP必须是公网IP，如果被NAT成了内网IP，需要打电话去申请成�
 
 解释下 `.env.example` 文件里的几个变量：
 
-- `ACCESS_KEY` 和 `ACCESS_KEY_SECRET` 就是访问阿里云API的密钥，**必填**。在这里可有看到 https://ak-console.aliyun.com
+- `ACCESS_KEY` 和 `ACCESS_KEY_SECRET` 就是访问阿里云API的密钥，**必填**。在这里可以看到 https://ak-console.aliyun.com
 
 - `REGION` 是区域ID，可以为空，默认是 `cn-hangzhou`
 
