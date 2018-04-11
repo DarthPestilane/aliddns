@@ -4,6 +4,6 @@ COPY . $GOPATH/src/aliddns
 
 WORKDIR $GOPATH/src/aliddns
 
-RUN cd $GOPATH/src/aliddns && go build && go install
+RUN cd $GOPATH/src/aliddns && go build -ldflags '-s -w' && go install
 
 ENTRYPOINT ["aliddns"]
