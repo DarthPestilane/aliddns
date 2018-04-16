@@ -32,13 +32,10 @@ func httpCmd() cli.Command {
 				// domain name
 				if domains, has := query["domain_name"]; !has || domains[0] == "" {
 					w.WriteHeader(422)
-					b, err := json.Marshal(map[string]interface{}{
+					b, _ := json.Marshal(map[string]interface{}{
 						"success": false,
 						"errors":  "domain_name is required",
 					})
-					if err != nil {
-						panic(err)
-					}
 					w.Write(b)
 					return
 				} else {
@@ -68,7 +65,8 @@ func httpCmd() cli.Command {
 					"message": fmt.Sprintf("set ip of '%s.%s' to %s", rr, domainName, currentIP),
 				})
 				if err != nil {
-					panic(err)
+					log.Println("decode response failed:", err)
+					return
 				}
 				w.Write(b)
 				return

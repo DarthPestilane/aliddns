@@ -23,7 +23,6 @@ func init() {
 	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
-	client = newClient()
 }
 
 func main() {
@@ -108,6 +107,7 @@ func updateRecord(recordId string) *alidns.UpdateDomainRecordResponse {
 
 func bind() {
 	log.Printf("current ip is %s", currentIP)
+	client = newClient()
 	recordResp := findRecords()
 	records := recordResp.DomainRecords.Record
 	shouldAdd := true
