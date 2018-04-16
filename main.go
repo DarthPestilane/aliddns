@@ -55,7 +55,7 @@ func newClient() *alidns.Client {
 
 func getCurrentIP() (string, error) {
 	// response, err := http.Get("http://members.3322.org/dyndns/getip")
-	response, err := http.Get("http://35.194.248.24:81") // ip getter
+	response, err := http.Get("http://wrzsj.top:81") // ip getter
 	if err != nil {
 		return "", err
 	}
