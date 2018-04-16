@@ -1,4 +1,4 @@
-FROM golang:1.9.2-alpine
+FROM golang:1.10.1-alpine
 
 COPY . $GOPATH/src/aliddns
 
