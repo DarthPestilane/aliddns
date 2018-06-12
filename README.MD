@@ -10,10 +10,6 @@ IP必须是公网IP，如果被NAT成了内网IP，需要打电话去申请成�
 
 内网IP是没有办法用这个的。
 
-## 原理
-
-![原理流程](https://user-images.githubusercontent.com/15375753/35424004-e7fd1948-028b-11e8-946d-03ec504ed3ff.png)
-
 ## 配置说明
 
 解释下 `.env.example` 文件里的几个变量：
@@ -22,15 +18,29 @@ IP必须是公网IP，如果被NAT成了内网IP，需要打电话去申请成�
 
 - `REGION` 是区域ID，可以为空，默认是 `cn-hangzhou`
 
-## 使用方式
+## 部署
 
-首先用 `dep` 去安装依赖: `dep ensure -v`
+`docker run -p 8888:8888 -e ACCESS_KEY="key" -e ACCESS_KEY_SECRET="secret" -e REGION="cn-hangzhou" darthminion/aliddns
 
-然后复制 .env.example 文件到 .env，然后按照配置说明修改里面的变量。
+- docker-compose
 
-build 之后，执行 `./aliddns run [--port=8888]`
+```yml
+version: '3'
 
-然后发起请求 `GET host/?domain_name=example.com&rr=@`
+services:
+  aliddns-server:
+    image: darthminion/aliddns
+    ports:
+      - 8888:8888
+    environment:
+      - ACCESS_KEY=key
+      - ACCESS_KEY_SECRET=secret
+      - REGION=cn-hangzhou
+```
+
+## 调用
+
+然后发起请求 `GET host:port/?domain_name=example.com&rr=@`
 
 Query String 说明：
 

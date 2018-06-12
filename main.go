@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/urfave/cli"
 	"os"
 )
@@ -12,9 +11,6 @@ var (
 )
 
 func init() {
-	if err := godotenv.Load(); err != nil {
-		panic(fmt.Errorf("load env failed: %v", err))
-	}
 	Log = NewLogger()
 }
 
