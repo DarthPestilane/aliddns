@@ -8,6 +8,6 @@ ENV PORT="8888"
 
 EXPOSE ${PORT}
 
-RUN cd $GOPATH/src/aliddns && go build -ldflags '-s -w' && go install
+RUN apk add --no-cache git && cd $GOPATH/src/aliddns && go get -v -u -d ./... && go build -ldflags '-s -w' && go install
 
 CMD aliddns run --port=${PORT}
