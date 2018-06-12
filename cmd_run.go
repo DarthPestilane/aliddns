@@ -22,8 +22,7 @@ func cmdRun() cli.Command {
 			port := ctx.Int("port")
 			Log.Info(fmt.Sprintf("listening at port %d", port))
 			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-				header := w.Header()
-				header.Set("Content-Type", "application/json")
+				w.Header().Set("Content-Type", "application/json")
 
 				// query strings
 				query := r.URL.Query()
@@ -66,6 +65,7 @@ func cmdRun() cli.Command {
 						"success": false,
 						"errors":  err.Error(),
 					})
+					w.WriteHeader(400)
 					w.Write(b)
 					return
 				}
