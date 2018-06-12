@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/urfave/cli"
-	"log"
 	"net/http"
 	"strings"
 )
 
-func httpCmd() cli.Command {
+func cmdRun() cli.Command {
 	cmd := cli.Command{
-		Name: "http",
+		Name: "run",
 		Flags: []cli.Flag{
 			cli.IntFlag{
 				Name:  "port",
@@ -21,7 +20,7 @@ func httpCmd() cli.Command {
 		},
 		Action: func(ctx *cli.Context) {
 			port := ctx.Int("port")
-			log.Printf("listening at port %d\n", port)
+			Log.Info(fmt.Sprintf("listening at port %d", port))
 			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 				header := w.Header()
 				header.Set("Content-Type", "application/json")
@@ -30,6 +29,7 @@ func httpCmd() cli.Command {
 				query := r.URL.Query()
 
 				// domain name
+				var domainName string
 				if domains, has := query["domain_name"]; !has || domains[0] == "" {
 					w.WriteHeader(422)
 					b, _ := json.Marshal(map[string]interface{}{
@@ -43,21 +43,32 @@ func httpCmd() cli.Command {
 				}
 
 				// rr
+				var rr string
 				if rrs, has := query["rr"]; !has || rrs[0] == "" {
 					rr = "@"
 				} else {
 					rr = rrs[0]
 				}
 
-				// bind
 				addr := strings.TrimSpace(r.RemoteAddr)
 				idx := strings.Index(addr, ":")
+				var currentIP string
 				if idx != -1 {
 					currentIP = addr[:idx]
 				} else {
 					currentIP = addr
 				}
-				bind()
+
+				// bind
+				dns := NewDns(domainName, currentIP, rr)
+				if err := dns.Bind(); err != nil {
+					b, _ := json.Marshal(map[string]interface{}{
+						"success": false,
+						"errors":  err.Error(),
+					})
+					w.Write(b)
+					return
+				}
 
 				w.WriteHeader(200)
 				b, err := json.Marshal(map[string]interface{}{
@@ -65,7 +76,7 @@ func httpCmd() cli.Command {
 					"message": fmt.Sprintf("set ip of '%s.%s' to %s", rr, domainName, currentIP),
 				})
 				if err != nil {
-					log.Println("decode response failed:", err)
+					Log.Error("decode response failed", err)
 					return
 				}
 				w.Write(b)
