@@ -1,12 +1,6 @@
-FROM golang:alpine
+FROM golang:alpine as builder
 
 ADD . $GOPATH/src/aliddns
-
-WORKDIR $GOPATH/src/aliddns
-
-ENV PORT="8888"
-
-EXPOSE ${PORT}
 
 # RUN echo http://mirrors.aliyun.com/alpine/v3.7/main > /etc/apk/repositories && \
 #     echo http://mirrors.aliyun.com/alpine/v3.7/community >> /etc/apk/repositories
@@ -14,8 +8,16 @@ EXPOSE ${PORT}
 RUN apk add --no-cache --virtual .build-deps git && \
     cd ${GOPATH}/src/aliddns && \
     go get -v -u -d ./... && \
-    go build -ldflags '-s -w' && \
-    go install && \
+    go build -gcflags=-trimpath=${GOPATH} -asmflags=-trimpath=${GOPATH} -ldflags '-s -w' -o aliddns.bin && \
+    cp aliddns.bin / && \
     apk del .build-deps
 
-CMD aliddns run --port=${PORT}
+FROM alpine:latest
+
+COPY --from=builder /aliddns.bin /
+
+ENV PORT="8888"
+
+EXPOSE ${PORT}
+
+CMD /aliddns.bin run --port=${PORT}
