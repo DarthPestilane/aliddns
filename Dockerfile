@@ -15,6 +15,7 @@ RUN apk add --no-cache --virtual .build-deps git && \
 FROM alpine:latest
 
 COPY --from=builder /aliddns.bin /
+COPY --from=builder /usr/local/go/lib/time/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
 
 ENV PORT="8888"
 

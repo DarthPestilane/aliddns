@@ -33,6 +33,7 @@ func (dns *Dns) FindRecords() (*alidns.DescribeDomainRecordsResponse, error) {
 	reqest.DomainName = dns.Domain
 	resp, err := dns.client.DescribeDomainRecords(reqest)
 	if err != nil {
+		Log.Error("create request failed for finding records", err)
 		return nil, fmt.Errorf("create request failed for finding records: %v", err)
 	}
 	return resp, nil
@@ -46,6 +47,7 @@ func (dns *Dns) AddRecord() (*alidns.AddDomainRecordResponse, error) {
 	request.Value = dns.IP
 	resp, err := dns.client.AddDomainRecord(request)
 	if err != nil {
+		Log.Error("create request failed for adding record", err)
 		return nil, fmt.Errorf("create request failed for adding record: %v", err)
 	}
 	Log.Info(fmt.Sprintf(`set ip of '%s.%s' to %s`, dns.RR, dns.Domain, dns.IP))
@@ -60,6 +62,7 @@ func (dns *Dns) UpdateRecord(recordId string) (*alidns.UpdateDomainRecordRespons
 	request.Value = dns.IP
 	resp, err := dns.client.UpdateDomainRecord(request)
 	if err != nil {
+		Log.Error("create request failed for updating record", err)
 		return nil, fmt.Errorf("create request failed for updating record: %v", err)
 	}
 	Log.Info(fmt.Sprintf(`set ip of '%s.%s' to %s`, dns.RR, dns.Domain, dns.IP))
