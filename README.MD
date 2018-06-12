@@ -20,7 +20,7 @@ IP必须是公网IP，如果被NAT成了内网IP，需要打电话去申请成�
 
 ## 部署
 
-`docker run -p 8888:8888 -e ACCESS_KEY="key" -e ACCESS_KEY_SECRET="secret" -e REGION="cn-hangzhou" darthminion/aliddns
+`docker run -p 8888:8888 -e ACCESS_KEY="key" -e ACCESS_KEY_SECRET="secret" -e REGION="cn-hangzhou" darthminion/aliddns`
 
 - docker-compose
 
