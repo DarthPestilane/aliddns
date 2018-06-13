@@ -9,16 +9,15 @@ RUN apk add --no-cache --virtual .build-deps git && \
     cd ${GOPATH}/src/aliddns && \
     go get -v -u -d ./... && \
     go build -gcflags=-trimpath=${GOPATH} -asmflags=-trimpath=${GOPATH} -ldflags '-s -w' -o aliddns.bin && \
-    cp aliddns.bin / && \
-    apk del .build-deps
+    cp aliddns.bin /
 
 FROM alpine:latest
 
 COPY --from=builder /aliddns.bin /
 COPY --from=builder /usr/local/go/lib/time/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
 
-ENV PORT="8888"
+ENV PORT=8888
 
 EXPOSE ${PORT}
 
-CMD /aliddns.bin run --port=${PORT}
+CMD ["/aliddns.bin", "run"]

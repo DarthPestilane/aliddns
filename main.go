@@ -19,5 +19,7 @@ func main() {
 	app.Commands = []cli.Command{
 		cmdRun(),
 	}
-	app.Run(os.Args)
+	if err := app.Run(os.Args); err != nil {
+		panic(err)
+	}
 }

@@ -5,16 +5,21 @@ import (
 	"fmt"
 	"github.com/urfave/cli"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
 func cmdRun() cli.Command {
+	defaultPort, err := strconv.Atoi(env("PORT", "8888"))
+	if err != nil {
+		panic(fmt.Errorf("parse env PORT failed: %v", err))
+	}
 	cmd := cli.Command{
 		Name: "run",
 		Flags: []cli.Flag{
 			cli.IntFlag{
 				Name:  "port",
-				Value: 8888,
+				Value: defaultPort,
 				Usage: "指定`监听端口`",
 			},
 		},
@@ -83,7 +88,9 @@ func cmdRun() cli.Command {
 				w.Write(b)
 				return
 			})
-			http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+			if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
+				panic(fmt.Errorf("start http server failed: %v", err))
+			}
 		},
 	}
 	return cmd
