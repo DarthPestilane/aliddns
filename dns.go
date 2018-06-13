@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"time"
 )
 
 type Dns struct {
@@ -33,8 +35,13 @@ func (dns *Dns) FindRecords() (*alidns.DescribeDomainRecordsResponse, error) {
 	reqest.DomainName = dns.Domain
 	resp, err := dns.client.DescribeDomainRecords(reqest)
 	if err != nil {
-		Log.Error("create request failed for finding records", err)
-		return nil, fmt.Errorf("create request failed for finding records: %v", err)
+		if clientErr, ok := err.(*errors.ClientError); ok && clientErr.ErrorCode() == errors.TimeoutErrorCode {
+			// retry
+			time.Sleep(time.Second)
+			return dns.FindRecords()
+		}
+		Log.Error("finding records failed", err)
+		return nil, fmt.Errorf("finding records failed: %v", err)
 	}
 	return resp, nil
 }
@@ -47,8 +54,8 @@ func (dns *Dns) AddRecord() (*alidns.AddDomainRecordResponse, error) {
 	request.Value = dns.IP
 	resp, err := dns.client.AddDomainRecord(request)
 	if err != nil {
-		Log.Error("create request failed for adding record", err)
-		return nil, fmt.Errorf("create request failed for adding record: %v", err)
+		Log.Error("adding record failed", err)
+		return nil, fmt.Errorf("adding record failed: %v", err)
 	}
 	Log.Info(fmt.Sprintf(`set ip of '%s.%s' to %s`, dns.RR, dns.Domain, dns.IP))
 	return resp, nil
@@ -62,8 +69,8 @@ func (dns *Dns) UpdateRecord(recordId string) (*alidns.UpdateDomainRecordRespons
 	request.Value = dns.IP
 	resp, err := dns.client.UpdateDomainRecord(request)
 	if err != nil {
-		Log.Error("create request failed for updating record", err)
-		return nil, fmt.Errorf("create request failed for updating record: %v", err)
+		Log.Error("updating record failed", err)
+		return nil, fmt.Errorf("updating record failed: %v", err)
 	}
 	Log.Info(fmt.Sprintf(`set ip of '%s.%s' to %s`, dns.RR, dns.Domain, dns.IP))
 	return resp, nil

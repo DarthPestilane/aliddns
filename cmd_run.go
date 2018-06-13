@@ -60,6 +60,7 @@ func cmdRun() cli.Command {
 
 				// bind
 				dns := NewDns(domainName, currentIP, rr)
+				Log.Info("=====")
 				if err := dns.Bind(); err != nil {
 					b, _ := json.Marshal(map[string]interface{}{
 						"success": false,
