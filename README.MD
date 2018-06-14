@@ -18,7 +18,11 @@
 
 - `REGION` 是区域ID，可以为空，默认是 `cn-hangzhou`
 
+- `PORT` 表示服务监听的端口，默认是`8888`
+
 ## 部署
+
+镜像: [darthminion/aliddns](https://hub.docker.com/r/darthminion/aliddns)
 
 - docker run
 
