@@ -1,7 +1,9 @@
 package main
 
 import (
+	"net/http"
 	"os"
+	"strings"
 )
 
 func env(key string, missing ...string) string {
@@ -13,4 +15,20 @@ func env(key string, missing ...string) string {
 		return missing[0]
 	}
 	return v
+}
+
+func ip(req *http.Request) string {
+	var ip string
+	ip = strings.TrimSpace(req.Header.Get("x-forwarded-for"))
+	if ip != "" {
+		return ip
+	}
+	addr := strings.TrimSpace(req.RemoteAddr)
+	idx := strings.Index(addr, ":")
+	if idx != -1 {
+		ip = addr[:idx]
+	} else {
+		ip = addr
+	}
+	return ip
 }
