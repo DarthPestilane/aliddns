@@ -6,7 +6,6 @@ import (
 	"github.com/urfave/cli"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 func cmdRun() cli.Command {
@@ -54,14 +53,7 @@ func cmdRun() cli.Command {
 					rr = rrs[0]
 				}
 
-				addr := strings.TrimSpace(r.RemoteAddr)
-				idx := strings.Index(addr, ":")
-				var currentIP string
-				if idx != -1 {
-					currentIP = addr[:idx]
-				} else {
-					currentIP = addr
-				}
+				currentIP := ip(r)
 
 				// bind
 				dns := NewDns(domainName, currentIP, rr)
