@@ -46,13 +46,12 @@ func cmdRun() cli.Command {
 				}
 
 				// rr
-				var rr string
-				if rrs, has := query["rr"]; !has || rrs[0] == "" {
-					rr = "@"
-				} else {
+				var rr string = "@"
+				if rrs, has := query["rr"]; has && rrs[0] != "" {
 					rr = rrs[0]
 				}
 
+				// ip
 				currentIP := ip(r)
 
 				// bind

@@ -35,6 +35,7 @@ func (dns *Dns) FindRecords() (*alidns.DescribeDomainRecordsResponse, error) {
 	reqest.DomainName = dns.Domain
 	resp, err := dns.client.DescribeDomainRecords(reqest)
 	if err != nil {
+		// try to fix timeout issue
 		if clientErr, ok := err.(*errors.ClientError); ok && clientErr.ErrorCode() == errors.TimeoutErrorCode {
 			// retry
 			Log.Error("timeout. retry...", clientErr)
