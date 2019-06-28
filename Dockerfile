@@ -2,11 +2,10 @@ FROM golang:alpine as builder
 
 ADD . /aliddns-src
 
-# RUN echo http://mirrors.aliyun.com/alpine/v3.7/main > /etc/apk/repositories && \
-#     echo http://mirrors.aliyun.com/alpine/v3.7/community >> /etc/apk/repositories
-
-RUN apk add --no-cache --virtual .build-deps git && \
-    cd aliddns-src && \
+RUN cp /etc/apk/repositories /etc/apk/repositories.backup && \
+    sed -i -E "s|http://.+/alpine|http://mirrors\.aliyun\.com/alpine|" /etc/apk/repositories && \
+    apk add --no-cache --virtual .build-deps git && \
+    cd /aliddns-src && \
     go build -gcflags=-trimpath=${GOPATH} -asmflags=-trimpath=${GOPATH} -ldflags '-s -w' -o aliddns && \
     cp aliddns /
 
