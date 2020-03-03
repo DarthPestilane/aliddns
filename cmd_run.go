@@ -39,14 +39,14 @@ func cmdRun() cli.Command {
 						"success": false,
 						"errors":  "domain_name is required",
 					})
-					w.Write(b)
+					_, _ = w.Write(b)
 					return
 				} else {
 					domainName = domains[0]
 				}
 
 				// rr
-				var rr string = "@"
+				var rr = "@"
 				if rrs, has := query["rr"]; has && rrs[0] != "" {
 					rr = rrs[0]
 				}
@@ -63,7 +63,7 @@ func cmdRun() cli.Command {
 						"errors":  err.Error(),
 					})
 					w.WriteHeader(400)
-					w.Write(b)
+					_, _ = w.Write(b)
 					return
 				}
 
@@ -76,8 +76,7 @@ func cmdRun() cli.Command {
 					Log.Error("decode response failed", err)
 					return
 				}
-				w.Write(b)
-				return
+				_, _ = w.Write(b)
 			})
 			if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
 				panic(fmt.Errorf("start http server failed: %v", err))
