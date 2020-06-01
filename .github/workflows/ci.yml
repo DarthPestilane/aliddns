@@ -30,11 +30,3 @@ jobs:
         uses: golangci/golangci-lint-action@v1
         with:
           version: v1.27
-
-  test:
-    name: Test
-    needs: lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Unit Test
-        run: go test -v ./...
