@@ -16,3 +16,11 @@ lint:
 
 tidy:
 	go mod tidy
+
+image = "darthminion/aliddns"
+
+build-image:
+	docker build -t ${image} .
+
+push-image:
+	docekr push ${image}

@@ -7,8 +7,6 @@ import (
 	"os"
 )
 
-
-
 func Run(buildTime, gitCommit, gitTag string) {
 	info := &version.BuildInfo{
 		BuildTime: buildTime,

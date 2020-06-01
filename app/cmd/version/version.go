@@ -18,7 +18,7 @@ const tpl = `
 func Command(info *BuildInfo) cli.Command {
 	return cli.Command{
 		Name:  "version",
-		Usage: "app version",
+		Usage: "Shows app version",
 		Action: func(ctx *cli.Context) {
 			fmt.Println(strings.Trim(fmt.Sprintf(tpl,
 				info.GitTag,
