@@ -1,25 +1,19 @@
 package main
 
 import (
-	_ "github.com/joho/godotenv/autoload"
-	"github.com/urfave/cli"
-	"os"
+	"github.com/DarthPestilane/aliddns/app/cmd"
+	"github.com/DarthPestilane/aliddns/bootstrap"
+	_ "github.com/joho/godotenv/autoload" // autoload .env
 )
 
+// ldflags -X
 var (
-	Log *Logger
+	buildTime string // eg: 2020-04-24T15:56:31+0800
+	gitCommit string // eg: d7b9655
+	gitTag    string // eg: 20200203.681
 )
-
-func init() {
-	Log = NewLogger()
-}
 
 func main() {
-	app := cli.NewApp()
-	app.Commands = []cli.Command{
-		cmdRun(),
-	}
-	if err := app.Run(os.Args); err != nil {
-		panic(err)
-	}
+	bootstrap.Boot()
+	cmd.Run(buildTime, gitCommit, gitTag)
 }

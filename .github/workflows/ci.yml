@@ -1,0 +1,27 @@
+name: Aliddns
+
+on: [push, pull_request]
+
+jobs:
+  install:
+    name: Install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-
+      - name: Install dependencies
+        run: go get -v -t -d ./...
+  lint:
+    needs: install
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: golangci/golangci-lint-action@v1
+        with:
+          version: v1.27

@@ -1,23 +1,26 @@
 .PHONY: all test clean vendor
 
-ldflags = -ldflags="-s -w"
+buildTime = `date +%Y-%m-%dT%T%z`
+gitCommit = `git rev-parse --short HEAD`
+gitTag = `git describe --tags --abbrev=0 2> /dev/null`
+
+ldflags = -ldflags="-s -w -X main.buildTime=${buildTime} -X main.gitCommit=${gitCommit} -X main.gitTag=${gitTag}"
 gcflags = -gcflags="-trimpath=${PWD}"
 output = -o=aliddns
 
-build: # build
+build:
 	CGO_ENABLED=0 go build ${ldflags} ${gcflags} -v ${output}
 
-build-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ${ldflags} ${gcflags} -v ${output}
-
 lint:
-	CGO_ENABLED=0 GOGC=15 golangci-lint run
-
-lint-ci:
-	CGO_ENABLED=0 GOGC=15 golangci-lint run -v
-
-lint-fix:
-	CGO_ENABLED=0 GOGC=15 golangci-lint run --fix
+	CGO_ENABLED=0 golangci-lint run --concurrency=2
 
 tidy:
 	go mod tidy
+
+image = "darthminion/aliddns"
+
+build-image:
+	docker build -t ${image} .
+
+push-image:
+	docekr push ${image}
