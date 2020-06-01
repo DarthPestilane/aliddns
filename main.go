@@ -1,25 +1,12 @@
 package main
 
 import (
+	"github.com/DarthPestilane/aliddns/app/cmd"
+	"github.com/DarthPestilane/aliddns/bootstrap"
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/urfave/cli"
-	"os"
 )
-
-var (
-	Log *Logger
-)
-
-func init() {
-	Log = NewLogger()
-}
 
 func main() {
-	app := cli.NewApp()
-	app.Commands = []cli.Command{
-		cmdRun(),
-	}
-	if err := app.Run(os.Args); err != nil {
-		panic(err)
-	}
+	bootstrap.Boot()
+	cmd.Run()
 }

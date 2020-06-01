@@ -11,13 +11,7 @@ build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ${ldflags} ${gcflags} -v ${output}
 
 lint:
-	CGO_ENABLED=0 GOGC=15 golangci-lint run
-
-lint-ci:
-	CGO_ENABLED=0 GOGC=15 golangci-lint run -v
-
-lint-fix:
-	CGO_ENABLED=0 GOGC=15 golangci-lint run --fix
+	CGO_ENABLED=0 golangci-lint run --concurrency=2
 
 tidy:
 	go mod tidy

@@ -1,15 +1,18 @@
-package main
+package server
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/DarthPestilane/aliddns/app"
+	"github.com/DarthPestilane/aliddns/app/dns"
+	"github.com/DarthPestilane/aliddns/app/helper"
 	"github.com/urfave/cli"
 	"net/http"
 	"strconv"
 )
 
-func cmdRun() cli.Command {
-	defaultPort, err := strconv.Atoi(env("PORT", "8888"))
+func Command() cli.Command {
+	defaultPort, err := strconv.Atoi(helper.Env("PORT", "8888"))
 	if err != nil {
 		panic(fmt.Errorf("parse env PORT failed: %v", err))
 	}
@@ -24,7 +27,7 @@ func cmdRun() cli.Command {
 		},
 		Action: func(ctx *cli.Context) {
 			port := ctx.Int("port")
-			Log.Info(fmt.Sprintf("listening at port %d", port))
+			app.Log().Info(fmt.Sprintf("listening at port %d", port))
 			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
 
@@ -52,12 +55,12 @@ func cmdRun() cli.Command {
 				}
 
 				// ip
-				currentIP := ip(r)
+				currentIP := helper.IP(r)
 
-				// bind
-				dns := NewDns(domainName, currentIP, rr)
-				Log.Info("=====")
-				if err := dns.Bind(); err != nil {
+				// bind dns
+				dnsHandler := dns.New(domainName, currentIP, rr)
+				app.Log().Info("=====")
+				if err := dnsHandler.Bind(); err != nil {
 					b, _ := json.Marshal(map[string]interface{}{
 						"success": false,
 						"errors":  err.Error(),
@@ -73,13 +76,13 @@ func cmdRun() cli.Command {
 					"message": fmt.Sprintf("set ip of '%s.%s' to %s", rr, domainName, currentIP),
 				})
 				if err != nil {
-					Log.Error("decode response failed", err)
+					app.Log().Error("decode response failed", err)
 					return
 				}
 				_, _ = w.Write(b)
 			})
 			if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
-				panic(fmt.Errorf("start http server failed: %v", err))
+				panic(fmt.Errorf("start http server failed: %s", err))
 			}
 		},
 	}

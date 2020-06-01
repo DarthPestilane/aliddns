@@ -1,86 +1,88 @@
-package main
+package dns
 
 import (
 	"fmt"
+	"github.com/DarthPestilane/aliddns/app"
+	"github.com/DarthPestilane/aliddns/app/helper"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"time"
 )
 
-type Dns struct {
+type Handler struct {
 	client *alidns.Client
-	IP     string
-	Domain string
-	RR     string
+	ip     string
+	domain string
+	rr     string
 }
 
-func NewDns(domain, ip, rr string) *Dns {
+func New(domain, ip, rr string) *Handler {
 	if domain == "" || ip == "" || rr == "" {
 		panic(fmt.Errorf("domain ip or rr cannot be empty"))
 	}
-	client, err := alidns.NewClientWithAccessKey(env("REGION", "cn-hangzhou"), env("ACCESS_KEY"), env("ACCESS_KEY_SECRET"))
+	client, err := alidns.NewClientWithAccessKey(helper.Env("REGION", "cn-hangzhou"), helper.Env("ACCESS_KEY"), helper.Env("ACCESS_KEY_SECRET"))
 	if err != nil {
 		panic(fmt.Errorf("new alidns client failed: %v", err))
 	}
-	return &Dns{
+	return &Handler{
 		client: client,
-		IP:     ip,
-		Domain: domain,
-		RR:     rr,
+		ip:     ip,
+		domain: domain,
+		rr:     rr,
 	}
 }
 
-func (dns *Dns) FindRecords() (*alidns.DescribeDomainRecordsResponse, error) {
+func (dns *Handler) findRecords() (*alidns.DescribeDomainRecordsResponse, error) {
 	reqest := alidns.CreateDescribeDomainRecordsRequest()
-	reqest.DomainName = dns.Domain
+	reqest.DomainName = dns.domain
 	resp, err := dns.client.DescribeDomainRecords(reqest)
 	if err != nil {
 		// try to fix timeout issue
 		if clientErr, ok := err.(*errors.ClientError); ok && clientErr.ErrorCode() == errors.TimeoutErrorCode {
 			// retry
-			Log.Error("timeout. retry...", clientErr)
+			app.Log().Error("timeout. retry...", clientErr)
 			time.Sleep(time.Second)
-			return dns.FindRecords()
+			return dns.findRecords()
 		}
-		Log.Error("finding records failed", err)
+		app.Log().Error("finding records failed", err)
 		return nil, fmt.Errorf("finding records failed: %v", err)
 	}
 	return resp, nil
 }
 
-func (dns *Dns) AddRecord() (*alidns.AddDomainRecordResponse, error) {
+func (dns *Handler) addRecord() (*alidns.AddDomainRecordResponse, error) {
 	request := alidns.CreateAddDomainRecordRequest()
-	request.DomainName = dns.Domain
+	request.DomainName = dns.domain
 	request.Type = "A"
-	request.RR = dns.RR
-	request.Value = dns.IP
+	request.RR = dns.rr
+	request.Value = dns.ip
 	resp, err := dns.client.AddDomainRecord(request)
 	if err != nil {
-		Log.Error("adding record failed", err)
+		app.Log().Error("adding record failed", err)
 		return nil, fmt.Errorf("adding record failed: %v", err)
 	}
-	Log.Info(fmt.Sprintf(`set ip of '%s.%s' to %s`, dns.RR, dns.Domain, dns.IP))
+	app.Log().Info(fmt.Sprintf(`set ip of '%s.%s' to %s`, dns.rr, dns.domain, dns.ip))
 	return resp, nil
 }
 
-func (dns *Dns) UpdateRecord(recordId string) (*alidns.UpdateDomainRecordResponse, error) {
+func (dns *Handler) updateRecord(recordId string) (*alidns.UpdateDomainRecordResponse, error) {
 	request := alidns.CreateUpdateDomainRecordRequest()
 	request.RecordId = recordId
 	request.Type = "A"
-	request.RR = dns.RR
-	request.Value = dns.IP
+	request.RR = dns.rr
+	request.Value = dns.ip
 	resp, err := dns.client.UpdateDomainRecord(request)
 	if err != nil {
-		Log.Error("updating record failed", err)
+		app.Log().Error("updating record failed", err)
 		return nil, fmt.Errorf("updating record failed: %v", err)
 	}
-	Log.Info(fmt.Sprintf(`set ip of '%s.%s' to %s`, dns.RR, dns.Domain, dns.IP))
+	app.Log().Info(fmt.Sprintf(`set ip of '%s.%s' to %s`, dns.rr, dns.domain, dns.ip))
 	return resp, nil
 }
 
-func (dns *Dns) Bind() error {
-	Log.Info(fmt.Sprintf("current ip is %s", dns.IP))
-	recordResp, err := dns.FindRecords()
+func (dns *Handler) Bind() error {
+	app.Log().Info(fmt.Sprintf("current ip is %s", dns.ip))
+	recordResp, err := dns.findRecords()
 	if err != nil {
 		return err
 	}
@@ -88,7 +90,7 @@ func (dns *Dns) Bind() error {
 	shouldAdd := true
 	var recordId, recordValue string
 	for _, r := range records {
-		if r.RR == dns.RR {
+		if r.RR == dns.rr {
 			// 如果找到RR和输入里的rr相同的记录，则更新这条记录的解析。反之则添加一条新解析
 			shouldAdd = false
 			recordId = r.RecordId
@@ -98,21 +100,21 @@ func (dns *Dns) Bind() error {
 	}
 	// add
 	if shouldAdd {
-		Log.Info("add domain record")
-		if _, err := dns.AddRecord(); err != nil {
+		app.Log().Info("add domain record")
+		if _, err := dns.addRecord(); err != nil {
 			return err
 		}
 		return nil
 	}
 	// update record
-	Log.Info(fmt.Sprintf("domain ip is %s", recordValue))
-	if recordValue == dns.IP {
+	app.Log().Info(fmt.Sprintf("domain ip is %s", recordValue))
+	if recordValue == dns.ip {
 		// no need updating
-		Log.Info("ip not changed, no need updating")
+		app.Log().Info("ip not changed, no need updating")
 		return nil
 	}
-	Log.Info("ip changed, update domain record")
-	if _, err := dns.UpdateRecord(recordId); err != nil {
+	app.Log().Info("ip changed, update domain record")
+	if _, err := dns.updateRecord(recordId); err != nil {
 		return err
 	}
 	return nil

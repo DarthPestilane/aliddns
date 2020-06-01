@@ -1,4 +1,4 @@
-package main
+package helper
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func env(key string, missing ...string) string {
+func Env(key string, missing ...string) string {
 	v, ok := os.LookupEnv(key)
 	if !ok || v == "" {
 		if len(missing) == 0 {
@@ -17,7 +17,7 @@ func env(key string, missing ...string) string {
 	return v
 }
 
-func ip(req *http.Request) string {
+func IP(req *http.Request) string {
 	var ip string
 	ip = strings.TrimSpace(req.Header.Get("x-forwarded-for"))
 	if ip != "" {
