@@ -1,6 +1,10 @@
 .PHONY: all test clean vendor
 
-ldflags = -ldflags="-s -w"
+buildTime = `date +%Y-%m-%dT%T%z`
+gitCommit = `git rev-parse --short HEAD`
+gitTag = `git describe --tags --abbrev=0 2> /dev/null`
+
+ldflags = -ldflags="-s -w -X main.buildTime=${buildTime} -X main.gitCommit=${gitCommit} -X main.gitTag=${gitTag}"
 gcflags = -gcflags="-trimpath=${PWD}"
 output = -o=aliddns
 
