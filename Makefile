@@ -2,7 +2,7 @@
 
 buildTime = `date +%Y-%m-%dT%T%z`
 gitCommit = `git rev-parse --short HEAD`
-gitTag = `git describe --tags --abbrev=0 2> /dev/null`
+gitTag = `git --no-pager tag --points-at`
 
 ldflags = -ldflags="-s -w -X main.buildTime=${buildTime} -X main.gitCommit=${gitCommit} -X main.gitTag=${gitTag}"
 gcflags = -gcflags="-trimpath=${PWD}"
