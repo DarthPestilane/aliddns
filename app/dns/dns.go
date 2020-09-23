@@ -33,9 +33,9 @@ func New(domain, ip, rr string) *Handler {
 }
 
 func (dns *Handler) findRecords() (*alidns.DescribeDomainRecordsResponse, error) {
-	reqest := alidns.CreateDescribeDomainRecordsRequest()
-	reqest.DomainName = dns.domain
-	resp, err := dns.client.DescribeDomainRecords(reqest)
+	request := alidns.CreateDescribeDomainRecordsRequest()
+	request.DomainName = dns.domain
+	resp, err := dns.client.DescribeDomainRecords(request)
 	if err != nil {
 		// try to fix timeout issue
 		if clientErr, ok := err.(*errors.ClientError); ok && clientErr.ErrorCode() == errors.TimeoutErrorCode {
