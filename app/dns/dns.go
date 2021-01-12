@@ -40,11 +40,11 @@ func (dns *Handler) findRecords() (*alidns.DescribeDomainRecordsResponse, error)
 		// try to fix timeout issue
 		if clientErr, ok := err.(*errors.ClientError); ok && clientErr.ErrorCode() == errors.TimeoutErrorCode {
 			// retry
-			app.Log().Error("timeout. retry...", clientErr)
+			app.Log().WithError(err).Error("timeout. retry...")
 			time.Sleep(time.Second)
 			return dns.findRecords()
 		}
-		app.Log().Error("finding records failed", err)
+		app.Log().WithError(err).Error("finding records failed")
 		return nil, fmt.Errorf("finding records failed: %v", err)
 	}
 	return resp, nil
@@ -58,10 +58,10 @@ func (dns *Handler) addRecord() (*alidns.AddDomainRecordResponse, error) {
 	request.Value = dns.ip
 	resp, err := dns.client.AddDomainRecord(request)
 	if err != nil {
-		app.Log().Error("adding record failed", err)
+		app.Log().WithError(err).Error("adding record failed")
 		return nil, fmt.Errorf("adding record failed: %v", err)
 	}
-	app.Log().Info(fmt.Sprintf(`set ip of '%s.%s' to %s`, dns.rr, dns.domain, dns.ip))
+	app.Log().Infof(`set ip of '%s.%s' to %s`, dns.rr, dns.domain, dns.ip)
 	return resp, nil
 }
 
@@ -73,15 +73,15 @@ func (dns *Handler) updateRecord(recordId string) (*alidns.UpdateDomainRecordRes
 	request.Value = dns.ip
 	resp, err := dns.client.UpdateDomainRecord(request)
 	if err != nil {
-		app.Log().Error("updating record failed", err)
+		app.Log().WithError(err).Error("updating record failed")
 		return nil, fmt.Errorf("updating record failed: %v", err)
 	}
-	app.Log().Info(fmt.Sprintf(`set ip of '%s.%s' to %s`, dns.rr, dns.domain, dns.ip))
+	app.Log().Infof(`set ip of '%s.%s' to %s`, dns.rr, dns.domain, dns.ip)
 	return resp, nil
 }
 
 func (dns *Handler) Bind() error {
-	app.Log().Info(fmt.Sprintf("current ip is %s", dns.ip))
+	app.Log().Infof("current ip is %s", dns.ip)
 	recordResp, err := dns.findRecords()
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func (dns *Handler) Bind() error {
 		return nil
 	}
 	// update record
-	app.Log().Info(fmt.Sprintf("domain ip is %s", recordValue))
+	app.Log().Infof("domain ip is %s", recordValue)
 	if recordValue == dns.ip {
 		// no need updating
 		app.Log().Info("ip not changed, no need updating")

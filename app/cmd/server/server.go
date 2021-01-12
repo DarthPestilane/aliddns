@@ -27,7 +27,7 @@ func Command() cli.Command {
 		},
 		Action: func(ctx *cli.Context) {
 			port := ctx.Int("port")
-			app.Log().Info(fmt.Sprintf("listening at port %d", port))
+			app.Log().Infof("listening at port %d", port)
 			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
 
@@ -76,7 +76,7 @@ func Command() cli.Command {
 					"message": fmt.Sprintf("set ip of '%s.%s' to %s", rr, domainName, currentIP),
 				})
 				if err != nil {
-					app.Log().Error("decode response failed", err)
+					app.Log().WithError(err).Error("decode response failed")
 					return
 				}
 				_, _ = w.Write(b)
