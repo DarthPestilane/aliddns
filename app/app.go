@@ -1,7 +1,10 @@
 package app
 
-import "github.com/DarthPestilane/aliddns/app/logger"
+import (
+	"github.com/DarthPestilane/aliddns/app/provider/logger"
+	"github.com/sirupsen/logrus"
+)
 
-func Log() *logger.Logger {
+func Log() *logrus.Logger {
 	return logger.Provide()
 }
