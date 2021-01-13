@@ -10,7 +10,7 @@ import (
 var (
 	buildTime string // eg: 2020-04-24T15:56:31+0800
 	gitCommit string // eg: d7b9655
-	gitTag    string // eg: 20200203.681
+	gitTag    string // eg: v1.1.1
 )
 
 func main() {
