@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-func Env(key string, missing ...string) string {
+func Env(key string, alternate ...string) string {
 	v, ok := os.LookupEnv(key)
 	if !ok || v == "" {
-		if len(missing) == 0 {
+		if len(alternate) == 0 {
 			return ""
 		}
-		return missing[0]
+		return alternate[0]
 	}
 	return v
 }

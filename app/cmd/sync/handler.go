@@ -5,6 +5,7 @@ import (
 	"github.com/DarthPestilane/aliddns/app/dns"
 	"github.com/DarthPestilane/aliddns/app/helper"
 	"github.com/urfave/cli"
+	"os"
 	"strings"
 )
 
@@ -23,9 +24,21 @@ func handle(ctx *cli.Context) error {
 	if accessKey == "" {
 		return fmt.Errorf("access-key cannot be empty")
 	}
+	if err := os.Setenv("ACCESS_KEY", accessKey); err != nil {
+		return fmt.Errorf("set env ACCESS_KEY failed: %s", err)
+	}
 	accessSecret := strings.TrimSpace(ctx.String("access-secret"))
 	if accessSecret == "" {
 		return fmt.Errorf("access-secret cannot be empty")
+	}
+	if err := os.Setenv("ACCESS_KEY_SECRET", accessSecret); err != nil {
+		return fmt.Errorf("set env ACCESS_KEY_SECRET failed: %s", err)
+	}
+	region := strings.TrimSpace(ctx.String("region"))
+	if region != "" {
+		if err := os.Setenv("REGION", region); err != nil {
+			return fmt.Errorf("set env REGION failed: %s", err)
+		}
 	}
 
 	// check ip
