@@ -23,4 +23,4 @@ build-image:
 	docker build -t ${image} .
 
 push-image:
-	docekr push ${image}
+	docker push ${image}
