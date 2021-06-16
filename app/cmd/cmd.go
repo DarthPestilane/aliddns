@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/DarthPestilane/aliddns/app/cmd/server"
+	"github.com/DarthPestilane/aliddns/app/cmd/sync"
 	"github.com/DarthPestilane/aliddns/app/cmd/version"
 	"github.com/urfave/cli"
 	"os"
@@ -21,6 +22,7 @@ func Run(buildTime, gitCommit, gitTag string) {
 	app.Version = info.GitTag
 	app.Commands = []cli.Command{
 		server.Command(),
+		sync.Command(),
 		version.Command(info),
 	}
 	if err := app.Run(os.Args); err != nil {

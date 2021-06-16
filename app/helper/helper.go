@@ -1,18 +1,21 @@
 package helper
 
 import (
+	"fmt"
+	"github.com/tidwall/gjson"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
 )
 
-func Env(key string, missing ...string) string {
+func Env(key string, alternate ...string) string {
 	v, ok := os.LookupEnv(key)
 	if !ok || v == "" {
-		if len(missing) == 0 {
+		if len(alternate) == 0 {
 			return ""
 		}
-		return missing[0]
+		return alternate[0]
 	}
 	return v
 }
@@ -31,4 +34,22 @@ func IP(req *http.Request) string {
 		ip = addr
 	}
 	return ip
+}
+
+func GeoIP() (string, error) {
+	resp, err := http.DefaultClient.Get("https://api.ip.sb/geoip/")
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close() // nolint
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	ip := gjson.GetBytes(data, "ip").String()
+	if ip == "" {
+		return "", fmt.Errorf("cannot find current IP")
+	}
+	return ip, nil
 }
