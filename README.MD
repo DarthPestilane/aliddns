@@ -78,7 +78,7 @@ $ aliddns sync 域名 --ip='current ip' --rr='@' --access-key='xxx' --access-sec
 - Flags:
   - `ip`: 是要解析到域名的 IP 地址。为空则会从 `https://api.ip.sb/geoip/` 获取当前设备的公网 IP，会有一定的耗时。
   - `rr`: 解析的 RR 值，选填，默认是`@`。也就是子域名部分，比如 'blog'，则最终解析的完整域名是 blog.abc.com。
-  - `access-key` `access-secret`: 访问阿里云 API 的密钥，**必填**。在这里可以看到 https://ak-console.aliyun.com。默认是读取 `ACCESS_KEY` 和 `ACCESS_KEY_SECRET` 两个环境变量
+  - `access-key` `access-secret`: 访问阿里云 API 的密钥，**必填**。在这里可以看到 https://ak-console.aliyun.com 。默认是读取 `ACCESS_KEY` 和 `ACCESS_KEY_SECRET` 两个环境变量
   - `region`: 是区域 ID。默认是读取 `REGION` 环境变量，如果为空，则默认为 `cn-hangzhou`。
 
 可以通过 `aliddns sync --help` 来查看使用方法。
